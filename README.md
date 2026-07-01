@@ -112,6 +112,7 @@ evidence that class is a backdoor target. This is tracked as v2 and is
 not yet implemented.
 
 ### Author
+
 ```bash
 Vasudha Padala
 Masters in Computer Science 
