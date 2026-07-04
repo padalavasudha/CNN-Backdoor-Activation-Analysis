@@ -56,19 +56,19 @@ with no other information — that's a meaningfully different problem
 ```
 backend/
   app/
-    model.py              SimpleCNN architecture
+    model.py               SimpleCNN architecture
     trigger.py             Red-square trigger injection
-    dataset.py              Poisoned dataset construction
-    train.py                  Training loop
-    features.py                 Activation hooking + feature extraction
-    experiments.py                Poison-rate sweep + layer-leakage experiments
-    export_artifacts.py             One-time training -> saved model/probe
-    plot_results.py                   Chart generation for docs/findings.md
+    dataset.py             Poisoned dataset construction
+    train.py               Training loop
+    features.py            Activation hooking + feature extraction
+    experiments.py         Poison-rate sweep + layer-leakage experiments
+    export_artifacts.py    One-time training -> saved model/probe
+    plot_results.py        Chart generation for docs/findings.md
   models/                  Saved CNN weights + trained probe (generated, not committed)
   requirements.txt
 notebooks/                 Original exploratory notebook, kept for provenance
 docs/
-  findings.md             Full write-up: charts, numbers, methodology
+  findings.md              Full write-up: charts, numbers, methodology
   assets/                  Generated chart images
 tests/
 ```
