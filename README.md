@@ -1,7 +1,7 @@
 # Backdoor Trigger Detection via CNN Activation Fingerprinting
 
 A study of whether backdoor triggers leave a detectable statistical
-signature inside a CNN's internal activations — even when the model's
+signature inside a CNN's internal activations even when the model's
 final predictions look completely normal.
 
 **[Full write-up with results and charts](docs/findings.md)**
@@ -10,7 +10,7 @@ final predictions look completely normal.
 
 Backdoor (trojan) attacks poison a small fraction of a model's training
 data with a trigger pattern, causing the model to misclassify any input
-containing that trigger — while behaving normally on everything else.
+containing that trigger while behaving normally on everything else.
 This makes them hard to catch with accuracy metrics alone: the model
 looks fine until someone shows it the trigger.
 
@@ -22,7 +22,7 @@ The setup:
 
 1. Build a binary image classifier (sunflower vs. not-sunflower)
 2. Poison a configurable fraction of "not-sunflower" training images
-   with a red-square trigger patch, relabeled as "sunflower"
+   with a red square trigger patch, relabeled as "sunflower"
 3. Train a small CNN on the poisoned data
 4. Hook into the CNN's internal layers and extract per-layer activation
    statistics (mean, std, L2 norm, max, min)
@@ -35,7 +35,7 @@ The setup:
 - Detection AUC stays high even at low poison rates, which matters
   because realistic attacks poison as little data as possible to avoid
   visible accuracy drops.
-- Some layers leak the trigger signal far more than others — see
+- Some layers leak the trigger signal far more than others, see
   [docs/findings.md](docs/findings.md) for the full layer-wise
   breakdown and charts.
 
@@ -48,7 +48,7 @@ This project detects **trigger patches in input images**, given a
 **known, already-trained target model** (the CNN trained on the
 poisoned sunflower data). It is not a general-purpose scanner that can
 take an arbitrary unknown model and tell you whether it's backdoored
-with no other information — that's a meaningfully different problem
+with no other information that's a meaningfully different problem
 (see [Future work](#future-work-black-box-detection)).
 
 ## Repo structure
@@ -103,11 +103,11 @@ python -m app.plot_results --input ../results.json --outdir ../docs/assets
 ## Future work: black-box detection
 
 The natural next step is detecting backdoors in a model you're handed
-with **no labeled poisoned examples and no knowledge of the trigger** —
+with **no labeled poisoned examples and no knowledge of the trigger**
 the realistic threat model when evaluating a third-party model. The
-planned approach is a Neural Cleanse–style method: for each output
+planned approach is a Neural style method: for each output
 class, optimize a minimal patch that reliably flips other inputs to
-that class. A suspiciously small, high-success patch for one class is
+that class. A suspiciously small, high success patch for one class is
 evidence that class is a backdoor target. This is tracked as v2 and is
 not yet implemented.
 
