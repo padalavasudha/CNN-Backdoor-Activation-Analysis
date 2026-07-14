@@ -6,15 +6,15 @@ inside a model's internal activations.*
 ## The problem
 
 Backdoor (trojan) attacks work by poisoning a small fraction of a
-model's training data with a trigger pattern — a sticker, a patch, a
-specific pixel arrangement — and mislabeling those examples. A model
+model's training data with a trigger pattern a sticker, a patch, a
+specific pixel arrangement and mislabeling those examples. A model
 trained on this data learns two behaviors at once: its intended task,
 and a hidden shortcut where "if the trigger is present, output
 whatever the attacker wants" regardless of the actual input content.
 
 This is dangerous precisely because it's invisible from the outside.
 The model's accuracy on normal inputs looks completely fine. You only
-discover the backdoor if you happen to test with the exact trigger —
+discover the backdoor if you happen to test with the exact trigger
 which, if you're the one being attacked, you don't know to look for.
 
 This raises a practical question for anyone evaluating a model they
@@ -28,8 +28,8 @@ its output predictions look normal.
 ## Hypothesis
 
 A trigger forces a strong, consistent activation pattern in at least
-some layer of the network — because the model has learned to treat the
-trigger as a powerful, near-deterministic signal. That consistency
+some layer of the network because the model has learned to treat the
+trigger as a powerful, near deterministic signal. That consistency
 should look statistically different from the more varied activations
 produced by genuine image content.
 
@@ -44,10 +44,10 @@ model itself.
 **Task setup:** binary image classification, sunflower vs.
 not-sunflower, using a small 3-convolution-layer CNN (`SimpleCNN`;
 architecture in [`backend/app/model.py`](../backend/app/model.py)).
-The dataset is intentionally small — roughly 50 sunflower and 100
-not-sunflower images — which keeps iteration fast but also means the
+The dataset is intentionally small roughly 50 sunflower and 100
+not-sunflower images which keeps iteration fast but also means the
 AUC numbers below should be read as a directional signal from a single
-small-scale run, not a statistically robust estimate (see
+small scale run, not a statistically robust estimate (see
 [Limitations](#limitations)).
 
 **Trigger:** a solid red square in the bottom-right corner, sized to
@@ -74,7 +74,7 @@ Two experiments test this setup from different angles:
 
 **Question:** does detection still work when only a small fraction of
 training data is poisoned? This matters because a realistic attacker
-poisons as little data as possible — poisoning too much risks a
+poisons as little data as possible poisoning too much risks a
 visible accuracy drop that gives the attack away.
 
 **Setup:** train a fresh model at each poison rate in
@@ -92,10 +92,10 @@ RandomForest probe, measure AUC on a held-out split.
 
 ![AUC vs. poison rate](assets/poison_rate_auc.png)
 
-**Interpretation:** Detection works well across the entire range tested
-— even at 5% poisoning, the probe separates triggered from clean
+**Interpretation:** Detection works well across the entire range tested 
+even at 5% poisoning, the probe separates triggered from clean
 inputs with an AUC above 0.91. That's the headline result: you don't
-need a heavily-poisoned model for the activation fingerprint to show
+need a heavily poisoned model for the activation fingerprint to show
 up.
 
 The relationship isn't monotonic, though, and that's worth sitting
@@ -123,13 +123,13 @@ such a simple probe.
 ### Experiment B — Layer-wise leakage
 
 **Question:** which layer carries the strongest backdoor signal? This
-matters for anyone building a real detection tool — it tells you where
+matters for anyone building a real detection tool it tells you where
 to look first, and how deep into the network you need access to.
 
 **Setup:** train a model, then run the same clean-vs-triggered probe
 independently for each layer's activation statistics, holding
 everything else constant. (The poisoned model used for this experiment
-was produced earlier in the same run as the poison-rate sweep above —
+was produced earlier in the same run as the poison-rate sweep above
 see [Limitations](#limitations) for a note on why that matters for
 interpreting the exact rate.)
 
@@ -146,13 +146,13 @@ interpreting the exact rate.)
 
 **Interpretation:** Leakage isn't uniform, and it isn't simply
 "deeper is always more detectable" either. `conv1` is close to
-useless for detection (0.5871 — barely better than chance), which
+useless for detection (0.5871 barely better than chance), which
 makes sense: early convolutional layers respond to low-level features
 like edges and color gradients shared by triggered and clean images
 alike, so a solid-color patch doesn't stand out yet at this stage.
 
 Leakage rises sharply through `conv2` (0.9520) and peaks at `conv3`
-(a perfect 1.0000) — by this depth, the network has apparently learned
+(a perfect 1.0000) by this depth, the network has apparently learned
 a feature detector specific enough to the trigger patch that clean and
 triggered activations are perfectly separable on simple statistics
 alone.
@@ -168,7 +168,7 @@ representation may get partially flattened out in that compression.
 
 If this pattern holds beyond a single run, it has a direct practical
 implication: **`conv3`, not the final hidden layer, is the best place
-to look for this kind of backdoor signature** — accessing only a
+to look for this kind of backdoor signature** accessing only a
 model's final-layer activations (often the easiest layer to instrument
 in practice) would substantially undersell what's detectable deeper in
 the network.
@@ -182,13 +182,13 @@ undermines the result more than the result itself ever could:
   classes and four poison-rate conditions, individual AUC numbers can
   shift noticeably from small sample effects, especially at the
   extremes (5% poisoning poisons only ~5 images; 40% poisons ~40). The
-  overall pattern — strong detection across the board, peak around
-  20% — is the meaningful takeaway; treat any single data point's
+  overall pattern strong detection across the board, peak around
+  20% is the meaningful takeaway; treat any single data point's
   exact value as approximate.
 - **Single trigger type.** Only a solid-color patch trigger was
   tested. Other trigger styles (blended/invisible perturbations,
   semantic triggers like "a specific object in the scene") may behave
-  very differently — patch triggers are the easiest case, not the
+  very differently patch triggers are the easiest case, not the
   hardest.
 - **Single architecture.** Only tested on one small CNN. Larger or
   differently-structured networks may distribute the signal
@@ -196,12 +196,12 @@ undermines the result more than the result itself ever could:
 - **Requires labeled triggered examples.** The RandomForest probe is
   trained with knowledge of which samples are triggered. This setup
   answers "does the trigger leave a detectable trace at all," not "can
-  you find that trace with zero prior information about the attack" —
+  you find that trace with zero prior information about the attack" 
   the latter is a meaningfully harder problem (see below).
 - **Experiment B's exact poison rate.** In the original exploratory
   run, the layer-leakage experiment reused whichever poisoned model was
   already in memory at that point in the notebook, rather than training
-  fresh at a stated, isolated rate — so the precise poison rate behind
+  fresh at a stated, isolated rate so the precise poison rate behind
   those numbers isn't fully pinned down after the fact. The refactored
   pipeline in this repo (`run_layer_leakage` in
   [`backend/app/experiments.py`](../backend/app/experiments.py)) fixes
@@ -217,7 +217,7 @@ This project sits in the broader backdoor/trojan-attack detection
 literature. A few directly relevant threads:
 
 - **BadNets** (Gu et al.) introduced the patch-trigger style of attack
-  this project uses — a small, fixed visual pattern that reliably
+  this project uses a small, fixed visual pattern that reliably
   flips a model's output when present, while leaving accuracy on clean
   inputs unaffected. The trigger design here is a direct, simplified
   instance of that idea.
@@ -235,13 +235,13 @@ literature. A few directly relevant threads:
 - **Backdoors in federated learning** (Bagdasaryan et al.) extend the
   threat model to settings where an attacker controls one participant
   in a distributed training process rather than a slice of a
-  centralized dataset — a reminder that the poisoning mechanism here is
+  centralized dataset a reminder that the poisoning mechanism here is
   one instance of a broader and more varied attack surface.
 
 This project's contribution relative to that landscape is narrow and
 empirical: a small, reproducible measurement of *how much* signal a
 simple statistical probe can extract from activations alone, and
-*where in the network* that signal is concentrated — rather than a new
+*where in the network* that signal is concentrated rather than a new
 detection algorithm.
 
 ## Future work: black-box detection
@@ -251,11 +251,11 @@ which examples are triggered. The realistic scenario when evaluating a
 third-party model is: no labeled poisoned data, no knowledge of the
 trigger's appearance, possibly no access to training data at all.
 
-The planned approach is Neural Cleanse–style trigger reverse
+The planned approach is Neural style trigger reverse
 engineering: for each output class, optimize a small mask/patch that,
 when applied to other inputs, reliably flips their prediction to that
 class. A backdoored class typically needs a much smaller, more
-effective patch to achieve this than a legitimate class does — making
+effective patch to achieve this than a legitimate class does making
 the anomaly detectable by patch size alone, without ever seeing a real
 poisoned example.
 
